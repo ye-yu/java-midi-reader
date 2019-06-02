@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/midi-reader/midi-reader.iml" filepath="$PROJECT_DIR$/midi-reader/midi-reader.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/midireader.iml" filepath="$PROJECT_DIR$/.idea/midireader.iml" />
+    </modules>
+  </component>
+</project>
