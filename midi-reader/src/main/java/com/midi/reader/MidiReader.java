@@ -35,7 +35,7 @@ public class MidiReader {
     }
 
     public String parseNotes(String toFile) throws MidiReaderException, NotesException, IOException {
-        return parseNotes(toFile, false);
+        return parseNotes(toFile, false, false);
     }
 
     private void addNote(long tick, int note, Notes.Mapper mapper) throws NotesException {
@@ -49,12 +49,14 @@ public class MidiReader {
         notes.add(new Note(tick, parsed, ticks));
     }
 
-    public String parseNotes(String toFile, boolean ignoreScale) throws MidiReaderException, NotesException, IOException {
+    public String parseNotes(String toFile, boolean ignoreScale, boolean scaleToC) throws MidiReaderException, NotesException, IOException {
         if (!ignoreScale && Objects.isNull(mapper))
             throw new MidiReaderException("Scale of the music is not set.");
 
         if (ignoreScale)
             System.out.println("Ignore scale flag is on. Notes outside of the scale are removed!");
+
+        mapper.setScaleToC(scaleToC);
 
         if (notes == null) {
             notes = new ArrayList<>();
@@ -104,7 +106,7 @@ public class MidiReader {
         String path = MidiReader.class.getResource("/Falling.mid").getPath();
         MidiReader midiReader = new MidiReader(path);
         midiReader.setScale("Em");
-        midiReader.parseNotes(null, true);
-        midiReader.parseNotes("falling-01", true);
+        midiReader.parseNotes(null, true, false);
+        midiReader.parseNotes("falling-01", true, false);
     }
 }

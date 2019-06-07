@@ -1,5 +1,10 @@
 package com.midi.reader;
 
+import lombok.Data;
+import org.jetbrains.annotations.NotNull;
+import org.omg.PortableInterceptor.AdapterStateHelper;
+
+import java.io.NotSerializableException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -59,45 +64,75 @@ public class Notes {
             "A#",
             "B",
     };
-    private static HashMap<String, String> scaleMap = new HashMap<>();
-    private static HashMap<String, String> flatToSharp = new HashMap<>();
-    private static HashMap<String, Integer> cFactor = new HashMap<>();
+    public final static HashMap<String, Integer> NOTES_DISTANCE = new HashMap<>();
+    private final static HashMap<String, String> SCALE_MAP = new HashMap<>();
+    private final static HashMap<String, String> FLAT_TO_SHARP = new HashMap<>();
+    private final static HashMap<String, Integer> C_FACTOR = new HashMap<>();
 
     static {
         // minor - major scales
-        scaleMap.put(C_MINOR, D_SHARP);
-        scaleMap.put(C_SHARP_MINOR, E);
-        scaleMap.put(D_MINOR, F);
-        scaleMap.put(D_SHARP_MINOR, F_SHARP);
-        scaleMap.put(E_MINOR, G);
-        scaleMap.put(F_MINOR, G_SHARP);
-        scaleMap.put(F_SHARP_MINOR, A);
-        scaleMap.put(G_MINOR, A_SHARP);
-        scaleMap.put(G_SHARP_MINOR, B);
-        scaleMap.put(A_MINOR, C);
-        scaleMap.put(A_SHARP_MINOR, C_SHARP);
-        scaleMap.put(B_MINOR, D);
+        SCALE_MAP.put(C_MINOR, D_SHARP);
+        SCALE_MAP.put(C_SHARP_MINOR, E);
+        SCALE_MAP.put(D_MINOR, F);
+        SCALE_MAP.put(D_SHARP_MINOR, F_SHARP);
+        SCALE_MAP.put(E_MINOR, G);
+        SCALE_MAP.put(F_MINOR, G_SHARP);
+        SCALE_MAP.put(F_SHARP_MINOR, A);
+        SCALE_MAP.put(G_MINOR, A_SHARP);
+        SCALE_MAP.put(G_SHARP_MINOR, B);
+        SCALE_MAP.put(A_MINOR, C);
+        SCALE_MAP.put(A_SHARP_MINOR, C_SHARP);
+        SCALE_MAP.put(B_MINOR, D);
 
         // flat to sharp
-        flatToSharp.put(D_FLAT, C_SHARP);
-        flatToSharp.put(E_FLAT, D_SHARP);
-        flatToSharp.put(G_FLAT, F_SHARP);
-        flatToSharp.put(A_FLAT, G_SHARP);
-        flatToSharp.put(B_FLAT, A_SHARP);
+        FLAT_TO_SHARP.put(D_FLAT, C_SHARP);
+        FLAT_TO_SHARP.put(E_FLAT, D_SHARP);
+        FLAT_TO_SHARP.put(G_FLAT, F_SHARP);
+        FLAT_TO_SHARP.put(A_FLAT, G_SHARP);
+        FLAT_TO_SHARP.put(B_FLAT, A_SHARP);
 
         // number to add from C
-        cFactor.put(C, 0);
-        cFactor.put(C_SHARP, 1);
-        cFactor.put(D, 2);
-        cFactor.put(D_SHARP, 3);
-        cFactor.put(E, 4);
-        cFactor.put(F, 5);
-        cFactor.put(F_SHARP, 6);
-        cFactor.put(G, 7);
-        cFactor.put(G_SHARP, 8);
-        cFactor.put(A, 9);
-        cFactor.put(A_SHARP, 10);
-        cFactor.put(B, 11);
+        C_FACTOR.put(C, 0);
+        C_FACTOR.put(C_SHARP, 1);
+        C_FACTOR.put(D, 2);
+        C_FACTOR.put(D_SHARP, 3);
+        C_FACTOR.put(E, 4);
+        C_FACTOR.put(F, 5);
+        C_FACTOR.put(F_SHARP, 6);
+        C_FACTOR.put(G, 7);
+        C_FACTOR.put(G_SHARP, 8);
+        C_FACTOR.put(A, 9);
+        C_FACTOR.put(A_SHARP, 10);
+        C_FACTOR.put(B, 11);
+
+        NOTES_DISTANCE.put(C, 0);
+
+        NOTES_DISTANCE.put(C_SHARP, 1);
+        NOTES_DISTANCE.put(D_FLAT, 1);
+
+        NOTES_DISTANCE.put(D, 2);
+
+        NOTES_DISTANCE.put(D_SHARP, 3);
+        NOTES_DISTANCE.put(E_FLAT, 3);
+
+        NOTES_DISTANCE.put(E, 4);
+
+        NOTES_DISTANCE.put(F, 5);
+
+        NOTES_DISTANCE.put(F_SHARP, 6);
+        NOTES_DISTANCE.put(G_FLAT, 6);
+
+        NOTES_DISTANCE.put(G, 7);
+
+        NOTES_DISTANCE.put(G_SHARP, 8);
+        NOTES_DISTANCE.put(A_FLAT, 8);
+
+        NOTES_DISTANCE.put(A, 9);
+
+        NOTES_DISTANCE.put(A_SHARP, 10);
+        NOTES_DISTANCE.put(B_FLAT, 10);
+
+        NOTES_DISTANCE.put(B, 11);
     }
 
     public static int[] getScaleInts(String scale, boolean ignoreException) throws NotesException {
@@ -114,7 +149,7 @@ public class Notes {
         if (scale.contains("b")) {
             String old = scale.substring(0, 2);
             try {
-                String toSharp = flatToSharp.get(old);
+                String toSharp = FLAT_TO_SHARP.get(old);
                 scale = scale.replace(old, toSharp);
             } catch (Exception e) {
                 throw new NotesException("Cannot convert piano flat scale to sharp.");
@@ -123,13 +158,13 @@ public class Notes {
 
         if (scale.contains("m")) {
             try {
-                scale = scaleMap.get(scale);
+                scale = SCALE_MAP.get(scale);
             } catch (Exception e) {
                 throw new NotesException("Cannot convert piano minor scale to major.");
             }
         }
 
-        int factor = cFactor.get(scale);
+        int factor = C_FACTOR.get(scale);
         int[] scaleInts = new int[7];
         for (int i = 0; i < 7; i++) {
             scaleInts[i] = Scales.C[i] + factor;
@@ -158,6 +193,7 @@ public class Notes {
     public static class Mapper {
         private int[] scaleInts;
         private String scale;
+        private boolean scaleToC = false;
 
         public Mapper(String scale) throws NotesException {
             this.scale = scale;
@@ -169,7 +205,14 @@ public class Notes {
             int value = note % 12;
             for (int i = 0; i < 7; i++) {
                 if (scaleInts[i] == value)
-                    return factor * 7 + i;
+                    if (!scaleToC)
+                        return factor * 7 + i;
+                    int cDistance = NOTES_DISTANCE.get(NOTES_NAME[value]);
+                    int mapValue = factor * 7 + i - cDistance;
+                    if (mapValue < 0)
+                        mapValue += 7;
+                    return mapValue;
+
             }
             throw new NotesException("Note is not in the scale " + scale + ": " + note + "[" + NOTES_NAME[value] + "]");
         }
@@ -180,15 +223,25 @@ public class Notes {
             int note = scaleInts[value];
             return factor * 12 + note;
         }
+
+        public void setScale(String scale) throws NotesException {
+            this.scale = scale;
+            this.scaleInts = Notes.getScaleInts(scale);
+        }
+
+        public void setScaleToC(boolean scaleToC) {
+            this.scaleToC = scaleToC;
+        }
     }
 
-    public static void unitTest(Notes.Mapper mapper, int note) throws Exception {
+    public static void unitTest(@org.jetbrains.annotations.NotNull Notes.Mapper mapper, int note) throws Exception {
         int mappedValue = mapper.mapToIndex(note);
         int restoredValue = mapper.mapToNote(mappedValue);
         System.out.println(note + " -> " + mappedValue + " --mapped back--> " + restoredValue);
     }
 
-    public static String parseToCSV(ArrayList<Note> notes) {
+    @NotNull
+    public static String parseToCSV(@NotNull ArrayList<Note> notes) {
         StringBuilder sb = new StringBuilder();
         for (Note note : notes) {
             sb.append(note.getTickNumber());

@@ -13,10 +13,10 @@ import org.apache.logging.log4j.Logger;
 public class MidiAuthor {
     public static Logger logger = LogManager.getLogger(MidiAuthor.class);
 
-    public static void reader(String scale, String input, String output, boolean ignore) throws Exception {
+    public static void reader(String scale, String input, String output, boolean ignore, boolean scaleToC) throws Exception {
         MidiReader mr = new MidiReader(input);
         mr.setScale(scale);
-        mr.parseNotes(output, ignore);
+        mr.parseNotes(output, ignore, scaleToC);
     }
 
     public static void writer(String scale, String input, String output, int resolution) throws Exception {
@@ -35,6 +35,7 @@ public class MidiAuthor {
         Option output = new Option("o", "output", true, "the output file name");
         Option scale = new Option("s", "scale", true, "the scale of the song");
         Option ignoreScale = new Option("S", "ignore-scale", false, "exclude notes that are not in the scale");
+        Option scaleToC = new Option("C", "scale-to-c", false, "change the scale to C");
         Option resolution = new Option("r", "resolution", true, "the resolution of the Midi file ticks");
         Option help = new Option("h", "help", false, "print this message");
 
@@ -87,7 +88,8 @@ public class MidiAuthor {
         if (op.equals("tocsv")) {
             logger.debug("Converting Midi to CSV");
             boolean ignore = cl.hasOption("S");
-            reader(sc, in, ou, ignore);
+            boolean stc = cl.hasOption("C");
+            reader(sc, in, ou, ignore, stc);
         } else {
             if (!cl.hasOption("r")) {
                 error = "Missing required option: r=<resolution number>";
