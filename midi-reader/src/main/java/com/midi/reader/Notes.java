@@ -205,6 +205,7 @@ public class Notes {
             int value = note % 12;
             for (int i = 0; i < 7; i++) {
                 if (scaleInts[i] == value)
+                {
                     if (!scaleToC)
                         return factor * 7 + i;
                     int cDistance = NOTES_DISTANCE.get(NOTES_NAME[value]);
@@ -212,7 +213,7 @@ public class Notes {
                     if (mapValue < 0)
                         mapValue += 7;
                     return mapValue;
-
+                }
             }
             throw new NotesException("Note is not in the scale " + scale + ": " + note + "[" + NOTES_NAME[value] + "]");
         }
